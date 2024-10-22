@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar</title>
+    <!-- Bootstrap CDN -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- FullCalendar CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+    <h1>My Calendar</h1>
+    <div id="calendar"></div>
+</div>
+
+<!-- FullCalendar and jQuery Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            events: function (fetchInfo, successCallback, failureCallback) {
+                // Fetch reminders from backend
+                $.ajax({
+                    url: '/api/reminders',
+                    method: 'GET',
+                    success: function (data) {
+                        var events = [];
+                        // Map through the reminders and format them as events for FullCalendar
+                        data.forEach(function (reminder) {
+                            events.push({
+                                title: reminder.title,
+                                start: reminder.reminder_date
+                            });
+                        });
+                        successCallback(events);  // Pass events to the calendar
+                    },
+                    error: function () {
+                        failureCallback('Failed to fetch reminders');
+                    }
+                });
+            }
+        });
+
+        calendar.render();
+    });
+</script>
+</body>
+</html>
