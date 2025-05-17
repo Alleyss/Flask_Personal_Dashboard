@@ -1,10 +1,11 @@
-from flask import redirect, url_for, flash
-from flask_login import current_user
+from functools import wraps
+from flask import session, redirect, url_for, flash
 
 def login_required(f):
-    def wrap(*args, **kwargs):
-        if not current_user.is_authenticated:
-            flash('You need to login first.', 'danger')
-            return redirect(url_for('login'))
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('logged_in'):
+            flash('You need to log in to access this page.', 'danger')
+            return redirect(url_for('routes.login'))
         return f(*args, **kwargs)
-    return wrap
+    return decorated_function
